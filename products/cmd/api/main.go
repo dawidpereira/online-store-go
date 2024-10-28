@@ -4,6 +4,7 @@ import (
 	"github.com/lpernett/godotenv"
 	"log"
 	"products/internal/env"
+	"products/internal/store"
 )
 
 func main() {
@@ -12,12 +13,15 @@ func main() {
 		log.Fatal(err)
 	}
 
+	storage := store.NewStorage()
+
 	cfg := config{
 		addr: env.GetString("PORT", ":8080"),
 	}
 
 	app := &application{
 		config: cfg,
+		store:  storage,
 	}
 
 	mux := app.mount()
