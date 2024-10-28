@@ -1,21 +1,21 @@
 package main
 
 import (
-	"encoding/json"
 	"log"
 	"net/http"
 )
 
-func (app *application) healthcheckHandler(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-
+func (app *application) healthcheckHandler(w http.ResponseWriter, _ *http.Request) {
 	data := map[string]string{
-		"status": "available",
+		"status":  "available",
+		"env":     app.config.env,
+		"version": app.config.version,
 	}
 
-	err := json.NewEncoder(w).Encode(data)
-	if err != nil {
-		log.Fatal(err) //TODO: Handle server error
+	if err := writeJSON(w, http.StatusOK, data); err != nil {
+		err := writeJSONError(w, http.StatusInternalServerError, err.Error())
+		if err != nil {
+			log.Fatal(err)
+		}
 	}
 }

@@ -10,7 +10,9 @@ import (
 )
 
 type config struct {
-	addr string
+	addr    string
+	env     string
+	version string
 }
 
 type application struct {
