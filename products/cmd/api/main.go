@@ -1,10 +1,19 @@
 package main
 
-import "log"
+import (
+	"github.com/lpernett/godotenv"
+	"log"
+	"products/internal/env"
+)
 
 func main() {
+	err := godotenv.Load(".env")
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	cfg := config{
-		addr: ":8080",
+		addr: env.GetString("PORT", ":8080"),
 	}
 
 	app := &application{
@@ -13,7 +22,7 @@ func main() {
 
 	mux := app.mount()
 
-	err := app.run(mux)
+	err = app.run(mux)
 	if err != nil {
 		log.Fatal(err)
 	}
