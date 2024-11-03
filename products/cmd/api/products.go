@@ -8,17 +8,20 @@ import (
 )
 
 type CreateProductRequest struct {
-	Name        string `json:"name"`
-	Description string `json:"description"`
-	Category    string `json:"category"`
+	Name        string `json:"name" validate:"required,max=100"`
+	Description string `json:"description" validate:"required,max=100"`
+	Category    string `json:"category" validate:"required,max=50"`
 }
 
 func (app *application) createProductHandler(w http.ResponseWriter, r *http.Request) {
 	var createProductRequest CreateProductRequest
-
 	if err := readJSON(w, r, &createProductRequest); err != nil {
 		app.badRequestError(w, r, err)
+		return
+	}
 
+	if err := Validate.Struct(createProductRequest); err != nil {
+		app.badRequestError(w, r, err)
 		return
 	}
 
@@ -39,6 +42,12 @@ func (app *application) createProductHandler(w http.ResponseWriter, r *http.Requ
 	}
 }
 
+type UpdateProductRequest struct {
+	Name        string `json:"name" validator:"required,max=100"`
+	Description string `json:"description" validator:"required,max=100"`
+	Category    string `json:"category" validator:"required,max=50"`
+}
+
 func (app *application) updateProductHandler(w http.ResponseWriter, r *http.Request) {
 	idParam := chi.URLParam(r, "id")
 	id, err := strconv.ParseInt(idParam, 10, 64)
@@ -46,11 +55,16 @@ func (app *application) updateProductHandler(w http.ResponseWriter, r *http.Requ
 		app.badRequestError(w, r, err)
 	}
 
-	var updateProductRequest CreateProductRequest
+	var updateProductRequest UpdateProductRequest
 
 	if err := readJSON(w, r, &updateProductRequest); err != nil {
 		app.badRequestError(w, r, err)
 
+		return
+	}
+
+	if err := Validate.Struct(updateProductRequest); err != nil {
+		app.badRequestError(w, r, err)
 		return
 	}
 
