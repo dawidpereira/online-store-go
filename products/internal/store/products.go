@@ -44,11 +44,27 @@ func (s *ProductStore) Create(product *Product) error {
 	return nil
 }
 
-func (s *ProductStore) List() ([]*Product, error) {
+func (s *ProductStore) List(query PaginatedQuery) (PaginatedResponse, error) {
 	s.Lock()
 	defer s.Unlock()
 
-	return s.products, nil
+	start := (query.Page - 1) * query.Limit
+	end := start + query.Limit
+	if end > len(s.products) {
+		end = len(s.products)
+	}
+
+	if query.Order == DESC {
+		start, end = len(s.products)-end, len(s.products)-start
+	}
+
+	return PaginatedResponse{
+		Limit: query.Limit,
+		Page:  query.Page,
+		Order: query.Order,
+		Total: len(s.products),
+		Data:  s.products[start:end],
+	}, nil
 }
 
 func (s *ProductStore) Get(id int64) (*Product, error) {
@@ -93,6 +109,7 @@ func (s *ProductStore) Delete(id int64) error {
 	_, exists := find(s.products, func(product *Product) bool {
 		return product.ID == id
 	})
+
 	if !exists {
 		return fmt.Errorf("product with id %v not found", id)
 	}

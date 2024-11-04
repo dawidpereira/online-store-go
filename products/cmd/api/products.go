@@ -59,7 +59,6 @@ func (app *application) updateProductHandler(w http.ResponseWriter, r *http.Requ
 
 	if err := readJSON(w, r, &updateProductRequest); err != nil {
 		app.badRequestError(w, r, err)
-
 		return
 	}
 
@@ -77,7 +76,6 @@ func (app *application) updateProductHandler(w http.ResponseWriter, r *http.Requ
 	product, err := app.store.Products.Update(id, productForm)
 	if err != nil {
 		app.internalServerError(w, r, err)
-
 		return
 	}
 
@@ -87,7 +85,17 @@ func (app *application) updateProductHandler(w http.ResponseWriter, r *http.Requ
 }
 
 func (app *application) listProductsHandler(w http.ResponseWriter, r *http.Request) {
-	products, err := app.store.Products.List()
+	pq, err := store.ParsePaginatedQuery(r)
+	if err != nil {
+		app.badRequestError(w, r, err)
+	}
+
+	if err := Validate.Struct(pq); err != nil {
+		app.badRequestError(w, r, err)
+		return
+	}
+
+	products, err := app.store.Products.List(pq)
 	if err != nil {
 		app.internalServerError(w, r, err)
 
