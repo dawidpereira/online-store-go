@@ -85,7 +85,7 @@ func (app *application) updateProductHandler(w http.ResponseWriter, r *http.Requ
 }
 
 func (app *application) listProductsHandler(w http.ResponseWriter, r *http.Request) {
-	pq, err := store.ParsePaginatedQuery(r)
+	pq, err := store.ParseListProductsQuery(r)
 	if err != nil {
 		app.badRequestError(w, r, err)
 	}
@@ -102,6 +102,7 @@ func (app *application) listProductsHandler(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
+	products.Next = pq.GetNextURL(r)
 	if err := writeJSON(w, http.StatusOK, products); err != nil {
 		app.internalServerError(w, r, err)
 	}

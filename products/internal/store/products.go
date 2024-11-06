@@ -2,6 +2,7 @@ package store
 
 import (
 	"fmt"
+	"strings"
 	"sync"
 	"time"
 )
@@ -44,7 +45,8 @@ func (s *ProductStore) Create(product *Product) error {
 	return nil
 }
 
-func (s *ProductStore) List(query PaginatedQuery) (PaginatedResponse, error) {
+// List TODO: Add support for sorting
+func (s *ProductStore) List(query ListProductsQuery) (PaginatedResponse, error) {
 	s.Lock()
 	defer s.Unlock()
 
@@ -58,13 +60,32 @@ func (s *ProductStore) List(query PaginatedQuery) (PaginatedResponse, error) {
 		start, end = len(s.products)-end, len(s.products)-start
 	}
 
+	filtered := filter(s.products, func(product *Product) bool {
+		if query.Search != "" && !strings.Contains(product.Name, query.Search) {
+			return false
+		}
+		if len(query.Category) > 0 && !contains(query.Category, product.Category) {
+			return false
+		}
+		return true
+	})
+
 	return PaginatedResponse{
 		Limit: query.Limit,
 		Page:  query.Page,
 		Order: query.Order,
 		Total: len(s.products),
-		Data:  s.products[start:end],
+		Data:  filtered[start:end],
 	}, nil
+}
+
+func contains(categories []string, category string) bool {
+	for _, c := range categories {
+		if c == category {
+			return true
+		}
+	}
+	return false
 }
 
 func (s *ProductStore) Get(id int64) (*Product, error) {
@@ -121,8 +142,8 @@ func (s *ProductStore) Delete(id int64) error {
 	return nil
 }
 
-func filter(products []Product, predicate func(product Product) bool) []Product {
-	var filtered []Product
+func filter(products []*Product, predicate func(product *Product) bool) []*Product {
+	var filtered []*Product
 	for _, product := range products {
 		if predicate(product) {
 			filtered = append(filtered, product)

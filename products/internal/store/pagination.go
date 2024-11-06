@@ -25,6 +25,33 @@ type PaginatedResponse struct {
 	Order Order       `json:"order,omitempty" validate:"oneof=ASC DESC" default:"ASC"`
 	Total int         `json:"total"`
 	Data  interface{} `json:"data"`
+	Next  string      `json:"next,omitempty"`
+}
+
+type ListProductsQuery struct {
+	PaginatedQuery `json:",inline"`
+	Search         string   `json:"search"`
+	Category       []string `json:"category"`
+}
+
+func (q *ListProductsQuery) GetNextURL(r *http.Request) string {
+	nextURL := r.URL.Query()
+	nextURL.Set("page", strconv.Itoa(q.Page+1))
+	return nextURL.Encode()
+}
+
+func ParseListProductsQuery(r *http.Request) (ListProductsQuery, error) {
+	query := ListProductsQuery{}
+
+	paginatedQuery, err := ParsePaginatedQuery(r)
+	if err != nil {
+		return query, err
+	}
+	query.PaginatedQuery = paginatedQuery
+	query.Search = r.URL.Query().Get("search")
+	query.Category = r.URL.Query()["category"]
+
+	return query, nil
 }
 
 func ParsePaginatedQuery(r *http.Request) (PaginatedQuery, error) {
