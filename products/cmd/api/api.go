@@ -1,10 +1,13 @@
 package main
 
 import (
+	"fmt"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
+	httpSwagger "github.com/swaggo/http-swagger/v2"
 	"log"
 	"net/http"
+	"products/docs"
 	"products/internal/store"
 	"time"
 )
@@ -32,6 +35,10 @@ func (app *application) mount() http.Handler {
 	r.Route("/api/v1", func(r chi.Router) {
 		r.Get("/healthcheck", app.healthcheckHandler)
 
+		docsURL := fmt.Sprintf("%s/swagger/doc.json", app.config.addr)
+		r.Get("/swagger/*", httpSwagger.Handler(
+			httpSwagger.URL(docsURL)))
+
 		r.Route("/products", func(r chi.Router) {
 			r.Get("/", app.listProductsHandler)
 			r.Get("/{id}", app.getProductHandler)
@@ -46,6 +53,9 @@ func (app *application) mount() http.Handler {
 }
 
 func (app *application) run(mux http.Handler) error {
+	docs.SwaggerInfo.Version = app.config.version
+	docs.SwaggerInfo.Host = fmt.Sprintf("localhost:%s", app.config.addr)
+
 	srv := &http.Server{
 		Addr:         app.config.addr,
 		Handler:      mux,

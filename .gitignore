@@ -107,3 +107,6 @@ go.work.sum
 
 # env file
 .env
+/products/docs/docs.go
+/products/docs/swagger.json
+/products/docs/swagger.yaml
