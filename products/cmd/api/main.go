@@ -2,7 +2,7 @@ package main
 
 import (
 	"github.com/lpernett/godotenv"
-	"log"
+	"go.uber.org/zap"
 	"products/internal/env"
 	"products/internal/store"
 )
@@ -18,9 +18,14 @@ import (
 
 // @BasePath	/v1
 func main() {
+	logger := zap.Must(zap.NewProduction()).Sugar()
+	defer func(logger *zap.SugaredLogger) {
+		_ = logger.Sync()
+	}(logger)
+
 	err := godotenv.Load(".env")
 	if err != nil {
-		log.Fatal(err)
+		logger.Fatal(err)
 	}
 
 	storage := store.NewStorage()
@@ -32,12 +37,13 @@ func main() {
 	app := &application{
 		config: cfg,
 		store:  storage,
+		logger: logger,
 	}
 
 	mux := app.mount()
 
 	err = app.run(mux)
 	if err != nil {
-		log.Fatal(err)
+		logger.Fatal(err)
 	}
 }
