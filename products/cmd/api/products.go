@@ -27,7 +27,7 @@ type CreateProductRequest struct {
 //	@Router			/products [post]
 func (app *application) createProductHandler(w http.ResponseWriter, r *http.Request) {
 	var createProductRequest CreateProductRequest
-	if err := readJSON(w, r, &createProductRequest); err != nil {
+	if err := readJSON(w, r, &createProductRequest, app.logger); err != nil {
 		app.badRequestError(w, r, err)
 		return
 	}
@@ -83,7 +83,7 @@ func (app *application) updateProductHandler(w http.ResponseWriter, r *http.Requ
 
 	var updateProductRequest UpdateProductRequest
 
-	if err := readJSON(w, r, &updateProductRequest); err != nil {
+	if err := readJSON(w, r, &updateProductRequest, app.logger); err != nil {
 		app.badRequestError(w, r, err)
 		return
 	}
