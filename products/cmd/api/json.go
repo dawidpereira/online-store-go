@@ -3,6 +3,8 @@ package main
 import (
 	"encoding/json"
 	"github.com/go-playground/validator/v10"
+	"go.uber.org/zap"
+	"io"
 	"net/http"
 )
 
@@ -29,7 +31,18 @@ func writeJSONError(w http.ResponseWriter, status int, message string) error {
 	return writeJSON(w, status, data)
 }
 
-func readJSON(w http.ResponseWriter, r *http.Request, data any) error {
+func readJSON(w http.ResponseWriter, r *http.Request, data any, logger *zap.SugaredLogger) error {
+	if r.Body == nil {
+		logger.Fatal("request body is nil")
+	}
+
+	defer func(Body io.ReadCloser) {
+		err := Body.Close()
+		if err != nil {
+			logger.Fatal(err)
+		}
+	}(r.Body)
+
 	maxBytes := int64(1 << 20) // 1 MB
 	r.Body = http.MaxBytesReader(w, r.Body, maxBytes)
 
