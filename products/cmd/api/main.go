@@ -16,7 +16,7 @@ import (
 //	@contact.url	https://www.linkedin.com/in/pereiradawid/
 //	@contact.email	pereiradawid@outlook.com
 
-// @BasePath	/v1
+// @BasePath	/api/v1
 func main() {
 	logger := zap.Must(zap.NewProduction()).Sugar()
 	defer func(logger *zap.SugaredLogger) {
