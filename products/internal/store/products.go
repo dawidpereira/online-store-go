@@ -97,7 +97,7 @@ func (s *ProductStore) Get(id int64) (*Product, error) {
 	})
 
 	if !exists {
-		return nil, fmt.Errorf("product with id %v not found", id)
+		return nil, &ProductNotFoundError{ID: id}
 	}
 
 	return product, nil
@@ -112,7 +112,7 @@ func (s *ProductStore) Update(id int64, updatedProduct *Product) (*Product, erro
 	})
 
 	if !exists {
-		return nil, fmt.Errorf("product with id %v not found", id)
+		return nil, &ProductNotFoundError{ID: id}
 	}
 
 	product.Name = updatedProduct.Name
@@ -132,7 +132,7 @@ func (s *ProductStore) Delete(id int64) error {
 	})
 
 	if !exists {
-		return fmt.Errorf("product with id %v not found", id)
+		return &ProductNotFoundError{ID: id}
 	}
 
 	s.products = remove(s.products, func(product *Product) bool {
@@ -172,4 +172,12 @@ func remove(products []*Product, predicate func(product *Product) bool) []*Produ
 	}
 
 	return filtered
+}
+
+type ProductNotFoundError struct {
+	ID int64
+}
+
+func (e *ProductNotFoundError) Error() string {
+	return fmt.Sprintf("product with id %v not found", e.ID)
 }

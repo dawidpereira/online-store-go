@@ -93,7 +93,7 @@ func (s *MockProductStore) Get(id int64) (*Product, error) {
 	})
 
 	if !exists {
-		return nil, fmt.Errorf("product with id %v not found", id)
+		return nil, &ProductNotFoundError{ID: id}
 	}
 
 	return product, nil
@@ -108,7 +108,7 @@ func (s *MockProductStore) Update(id int64, updatedProduct *Product) (*Product, 
 	})
 
 	if !exists {
-		return nil, fmt.Errorf("product with id %v not found", id)
+		return nil, &ProductNotFoundError{ID: id}
 	}
 
 	product.Name = updatedProduct.Name
@@ -128,7 +128,7 @@ func (s *MockProductStore) Delete(id int64) error {
 	})
 
 	if !exists {
-		return fmt.Errorf("product with id %v not found", id)
+		return &ProductNotFoundError{ID: id}
 	}
 
 	s.products = remove(s.products, func(product *Product) bool {

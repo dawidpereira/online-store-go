@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"github.com/go-chi/chi/v5"
 	"net/http"
 	"products/internal/store"
@@ -101,6 +102,11 @@ func (app *application) updateProductHandler(w http.ResponseWriter, r *http.Requ
 
 	product, err := app.store.Products.Update(id, productForm)
 	if err != nil {
+		var productNotFoundError *store.ProductNotFoundError
+		if errors.As(err, &productNotFoundError) {
+			app.notFoundError(w, r)
+			return
+		}
 		app.internalServerError(w, r, err)
 		return
 	}
@@ -170,8 +176,12 @@ func (app *application) getProductHandler(w http.ResponseWriter, r *http.Request
 
 	product, err := app.store.Products.Get(id)
 	if err != nil {
-		app.notFoundError(w, r)
-
+		var notFoundErr *store.ProductNotFoundError
+		if errors.As(err, &notFoundErr) {
+			app.notFoundError(w, r)
+			return
+		}
+		app.internalServerError(w, r, err)
 		return
 	}
 
@@ -199,8 +209,12 @@ func (app *application) deleteProductHandler(w http.ResponseWriter, r *http.Requ
 	}
 
 	if err := app.store.Products.Delete(id); err != nil {
+		var notFoundErr *store.ProductNotFoundError
+		if errors.As(err, &notFoundErr) {
+			app.notFoundError(w, r)
+			return
+		}
 		app.internalServerError(w, r, err)
-
 		return
 	}
 
