@@ -13,20 +13,23 @@ import (
 	"os/signal"
 	"products/docs"
 	"products/internal/store"
+	"shared"
 	"syscall"
 	"time"
 )
 
 type config struct {
-	addr    string
-	env     string
-	version string
+	addr        string
+	env         string
+	version     string
+	rateLimiter shared.Config
 }
 
 type application struct {
-	config config
-	store  store.Storage
-	logger *zap.SugaredLogger
+	config      config
+	store       store.Storage
+	logger      *zap.SugaredLogger
+	rateLimiter shared.RateLimiter
 }
 
 func (app *application) mount() http.Handler {
@@ -37,6 +40,7 @@ func (app *application) mount() http.Handler {
 	r.Use(middleware.Logger)
 	r.Use(middleware.Recoverer)
 	r.Use(middleware.Timeout(60 * time.Second))
+	r.Use(app.rateLimiter.RateLimiterMiddleware())
 
 	r.Route("/api/v1", func(r chi.Router) {
 		r.Get("/healthcheck", app.healthcheckHandler)

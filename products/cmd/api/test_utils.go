@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"products/internal/store"
+	"shared"
 	"testing"
 )
 
@@ -18,6 +19,11 @@ func newTestApplication(t *testing.T) *application {
 	return &application{
 		logger: logger,
 		store:  storage,
+		rateLimiter: shared.NewFixedWindowRateLimiter(shared.Config{
+			RequestPerTimeFrame: 100,
+			TimeFrame:           1,
+			Enabled:             true,
+		}, logger),
 	}
 }
 

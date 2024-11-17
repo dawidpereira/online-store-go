@@ -3,8 +3,9 @@ package main
 import (
 	"github.com/lpernett/godotenv"
 	"go.uber.org/zap"
-	"products/internal/env"
 	"products/internal/store"
+	"shared"
+	"time"
 )
 
 //	@title			Products API
@@ -31,13 +32,21 @@ func main() {
 	storage := store.NewStorage()
 
 	cfg := config{
-		addr: env.GetString("PORT", ":8080"),
+		addr:    shared.GetString("PORT", ":8080"),
+		env:     shared.GetString("ENV", "development"),
+		version: shared.GetString("VERSION", "1.0"),
+		rateLimiter: shared.Config{
+			RequestPerTimeFrame: shared.GetInt("RATE_LIMIT_MAX_REQUESTS", 100),
+			TimeFrame:           shared.GetDuration("RATE_LIMIT_WINDOW", 1*time.Minute),
+			Enabled:             shared.GetBool("RATE_LIMIT_ENABLED", false),
+		},
 	}
 
 	app := &application{
-		config: cfg,
-		store:  storage,
-		logger: logger,
+		config:      cfg,
+		store:       storage,
+		logger:      logger,
+		rateLimiter: shared.NewFixedWindowRateLimiter(cfg.rateLimiter, logger),
 	}
 
 	mux := app.mount()
