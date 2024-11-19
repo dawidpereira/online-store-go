@@ -1,0 +1,236 @@
+basePath: /api/v1
+definitions:
+  main.CreateProductRequest:
+    properties:
+      category:
+        maxLength: 50
+        type: string
+      description:
+        maxLength: 100
+        type: string
+      name:
+        maxLength: 100
+        type: string
+    required:
+    - category
+    - description
+    - name
+    type: object
+  main.UpdateProductRequest:
+    properties:
+      category:
+        type: string
+      description:
+        type: string
+      name:
+        type: string
+    type: object
+  store.Order:
+    enum:
+    - ASC
+    - DESC
+    type: string
+    x-enum-varnames:
+    - ASC
+    - DESC
+  store.PaginatedResponse:
+    properties:
+      data: {}
+      limit:
+        default: 10
+        maximum: 50
+        minimum: 1
+        type: integer
+      next:
+        type: string
+      order:
+        allOf:
+        - $ref: '#/definitions/store.Order'
+        default: ASC
+        enum:
+        - ASC
+        - DESC
+      page:
+        default: 1
+        minimum: 0
+        type: integer
+      total:
+        type: integer
+    required:
+    - limit
+    type: object
+  store.Product:
+    properties:
+      category:
+        type: string
+      created_at:
+        type: string
+      description:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      updated_at:
+        type: string
+    type: object
+info:
+  contact:
+    email: pereiradawid@outlook.com
+    name: Dawid Pereira
+    url: https://www.linkedin.com/in/pereiradawid/
+  description: This is a sample server for a products API.
+  termsOfService: http://swagger.io/terms/
+  title: Products API
+  version: "1.0"
+paths:
+  /products:
+    get:
+      consumes:
+      - application/json
+      description: List products
+      parameters:
+      - description: Limit
+        in: query
+        name: limit
+        type: integer
+      - description: Page
+        in: query
+        name: page
+        type: integer
+      - description: Order
+        in: query
+        name: order
+        type: string
+      - description: Search
+        in: query
+        name: search
+        type: string
+      - description: Category
+        in: query
+        name: category
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/store.PaginatedResponse'
+        "500":
+          description: Internal Server Error
+          schema: {}
+      summary: List products
+      tags:
+      - products
+    post:
+      consumes:
+      - application/json
+      description: Create a product
+      parameters:
+      - description: Product details
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/main.CreateProductRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/store.Product'
+        "400":
+          description: Bad Request
+          schema: {}
+        "500":
+          description: Internal Server Error
+          schema: {}
+      summary: Create a product
+      tags:
+      - products
+  /products/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a product
+      parameters:
+      - description: Product ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "500":
+          description: Internal Server Error
+          schema: {}
+      summary: Delete a product
+      tags:
+      - products
+    get:
+      consumes:
+      - application/json
+      description: Get a product
+      parameters:
+      - description: Product ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/store.Product'
+        "404":
+          description: Not Found
+          schema: {}
+        "500":
+          description: Internal Server Error
+          schema: {}
+      summary: Get a product
+      tags:
+      - products
+    put:
+      consumes:
+      - application/json
+      description: Update a product
+      parameters:
+      - description: Product ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Product details
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/main.UpdateProductRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/store.Product'
+        "400":
+          description: Bad Request
+          schema: {}
+        "404":
+          description: Not Found
+          schema: {}
+        "500":
+          description: Internal Server Error
+          schema: {}
+      summary: Update a product
+      tags:
+      - products
+swagger: "2.0"
