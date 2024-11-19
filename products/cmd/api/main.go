@@ -1,10 +1,10 @@
 package main
 
 import (
+	"github.com/dawidpereira/online-store-go/products/internal/store"
+	"github.com/dawidpereira/online-store-go/shared"
 	"github.com/lpernett/godotenv"
 	"go.uber.org/zap"
-	"products/internal/store"
-	"shared"
 	"time"
 )
 

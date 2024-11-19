@@ -2,9 +2,9 @@ package main
 
 import (
 	"errors"
+	"github.com/dawidpereira/online-store-go/products/internal/store"
 	"github.com/go-chi/chi/v5"
 	"net/http"
-	"products/internal/store"
 	"strconv"
 )
 

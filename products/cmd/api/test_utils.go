@@ -2,11 +2,11 @@ package main
 
 import (
 	"encoding/json"
+	"github.com/dawidpereira/online-store-go/products/internal/store"
+	"github.com/dawidpereira/online-store-go/shared"
 	"go.uber.org/zap"
 	"net/http"
 	"net/http/httptest"
-	"products/internal/store"
-	"shared"
 	"testing"
 )
 

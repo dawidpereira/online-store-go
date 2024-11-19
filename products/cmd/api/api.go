@@ -4,6 +4,9 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/dawidpereira/online-store-go/products/docs"
+	"github.com/dawidpereira/online-store-go/products/internal/store"
+	"github.com/dawidpereira/online-store-go/shared"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	httpSwagger "github.com/swaggo/http-swagger/v2"
@@ -11,9 +14,6 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
-	"products/docs"
-	"products/internal/store"
-	"shared"
 	"syscall"
 	"time"
 )
@@ -42,6 +42,7 @@ func (app *application) mount() http.Handler {
 	r.Use(middleware.Timeout(60 * time.Second))
 	r.Use(app.rateLimiter.RateLimiterMiddleware())
 
+	//Test workflow
 	r.Route("/api/v1", func(r chi.Router) {
 		r.Get("/healthcheck", app.healthcheckHandler)
 
